@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-near-black text-white text-btn px-6 py-3 rounded-pill hover:opacity-90 transition-opacity font-medium;
+  }
+  .btn-secondary {
+    @apply text-ink text-body underline underline-offset-4 decoration-hairline hover:decoration-ink transition-colors;
+  }
+  .btn-pill-outline {
+    @apply border border-ink text-ink text-caption px-5 py-2 rounded-xl bg-transparent hover:bg-soft-stone transition-colors;
+  }
+  .pill-chip {
+    @apply inline-flex items-center px-4 py-1.5 rounded-sm text-caption font-medium;
+  }
+  .pill-chip-coral {
+    @apply pill-chip bg-coral/10 text-coral border border-soft-coral;
+  }
+  .pill-chip-active {
+    @apply pill-chip bg-coral text-white border border-coral;
+  }
+  .card {
+    @apply bg-canvas-white rounded-sm border border-hairline;
+  }
+  .card-dark {
+    @apply bg-near-black text-white rounded-sm;
+  }
+  .stat-value {
+    @apply font-display text-card-heading tracking-tight;
+  }
+  .stat-label {
+    @apply text-muted-slate text-caption uppercase tracking-wide;
+  }
+  .section-title {
+    @apply font-display text-feature-heading text-ink;
+  }
+  .mono-label {
+    @apply font-mono text-caption tracking-wider uppercase;
+  }
+}

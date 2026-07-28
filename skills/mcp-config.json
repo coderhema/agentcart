@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "agentcart": {
+      "command": "node",
+      "args": ["/path/to/agentcart-mcp-server/dist/index.js"],
+      "env": {
+        "AGENTCART_API_URL": "https://agentcart.osskri.xyz/api/v1",
+        "AGENT_WALLET": "YOUR_ALGORAND_WALLET_ADDRESS"
+      }
+    }
+  }
+}

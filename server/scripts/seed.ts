@@ -1,0 +1,81 @@
+import Database from 'better-sqlite3';
+import { config } from '../config.js';
+import { logger } from '../utils/logger.js';
+
+const products = [
+  {
+    id: 'linkedin-profile',
+    name: 'LinkedIn Profile Data',
+    description: 'Get public LinkedIn profile data including name, headline, experience, education',
+    price_usdc: 0.05,
+    provider: 'linkedin',
+    endpoint_path: '/proxy/linkedin/profile',
+    method: 'POST',
+    parameters: JSON.stringify({
+      type: 'object',
+      properties: { url: { type: 'string', description: 'LinkedIn profile URL' } },
+      required: ['url'],
+    }),
+  },
+  {
+    id: 'twitter-search',
+    name: 'Twitter/X Search',
+    description: 'Search recent tweets by query or user',
+    price_usdc: 0.03,
+    provider: 'twitter',
+    endpoint_path: '/proxy/twitter/search',
+    method: 'POST',
+    parameters: JSON.stringify({
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Search query' },
+        count: { type: 'number', description: 'Number of results (max 20)' },
+      },
+      required: ['query'],
+    }),
+  },
+  {
+    id: 'weather-current',
+    name: 'Weather Data',
+    description: 'Current weather, temperature, humidity, wind for a given city',
+    price_usdc: 0.01,
+    provider: 'weather',
+    endpoint_path: '/proxy/weather/current',
+    method: 'POST',
+    parameters: JSON.stringify({
+      type: 'object',
+      properties: {
+        city: { type: 'string', description: 'City name' },
+        units: { type: 'string', description: 'metric or imperial' },
+      },
+      required: ['city'],
+    }),
+  },
+  {
+    id: 'email-verify',
+    name: 'Email Verification',
+    description: 'Verify if an email address is valid and deliverable',
+    price_usdc: 0.02,
+    provider: 'email',
+    endpoint_path: '/proxy/email/verify',
+    method: 'POST',
+    parameters: JSON.stringify({
+      type: 'object',
+      properties: { email: { type: 'string', description: 'Email address to verify' } },
+      required: ['email'],
+    }),
+  },
+];
+
+const db = new Database(config.database.url);
+const insert = db.prepare(`
+  INSERT OR REPLACE INTO api_products (id, name, description, price_usdc, provider, endpoint_path, method, parameters)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`);
+
+for (const p of products) {
+  insert.run(p.id, p.name, p.description, p.price_usdc, p.provider, p.endpoint_path, p.method, p.parameters);
+}
+
+logger.info(`Seeded ${products.length} products`);
+db.close();
