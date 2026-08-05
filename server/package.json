@@ -16,6 +16,7 @@
     "@x402/core": "^2.19.0",
     "@x402-avm/extensions": "^2.19.0",
     "@x402/fetch": "^2.19.0",
+    "algosdk": "^3.6.0",
     "@algorandfoundation/algokit-utils": "10.0.0-alpha.42",
     "hono": "^4.0.0",
     "@hono/node-server": "^1.11.0",

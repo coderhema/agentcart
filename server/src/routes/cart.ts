@@ -3,6 +3,8 @@ import { db } from '../db/index.js';
 import { cartItems, carts, agentHandles } from '../db/schema.js';
 import { sql, eq } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
+import { config } from '../config.js';
+import { SettlementService } from '../services/settlement.js';
 import { logger } from '../utils/logger.js';
 
 export const cartRouter = Router();
@@ -116,16 +118,35 @@ cartRouter.post('/:handle/checkout', async (req, res) => {
     return res.status(400).json({ error: `Item '${missingSeller.title}' has no seller payTo address` });
   }
 
-  const groupId = randomBytes(32).toString('hex');
-  const total = items.reduce((sum, i) => sum + (i.price_usdc || 0) * (i.quantity || 1), 0);
-
   const payments = items.map(i => ({
     item_id: i.id,
     title: i.title,
-    source: i.source,
     amount_usdc: (i.price_usdc || 0) * (i.quantity || 1),
-    seller_payto: i.seller_payto,
+    seller_payto: i.seller_payto as string,
   }));
+  const total = payments.reduce((sum, p) => sum + p.amount_usdc, 0);
+
+  const mnemonic = config.algorand.walletMnemonic || process.env.AGENT_PRIVATE_KEY;
+  if (!mnemonic) {
+    return res.status(500).json({
+      error: 'Payer mnemonic not configured. Set AGENT_PRIVATE_KEY in .env.',
+      batch_payments: payments,
+      total_usdc: parseFloat(total.toFixed(2)),
+    });
+  }
+
+  const settlement = new SettlementService(mnemonic);
+  const result = await settlement.settleAtomicSplit(payments);
+
+  if (!result.success) {
+    return res.status(502).json({
+      error: 'Atomic group settlement failed',
+      message: result.error,
+      batch_payments: payments,
+    });
+  }
+
+  const groupId = result.txn_group_id || `cart_${randomBytes(8).toString('hex')}`;
 
   await db.update(cartItems).set({ status: 'purchased', updated_at: new Date().toISOString() })
     .where(eq(cartItems.handle, handle));
@@ -140,15 +161,17 @@ cartRouter.post('/:handle/checkout', async (req, res) => {
     }).where({ id: cart[0].id });
   }
 
-  logger.info(`Checkout for ${handle}: ${payments.length} payments, ${total.toFixed(2)} USDC, group ${groupId}`);
+  logger.info(`Checkout for ${handle}: ${payments.length} payments, ${total.toFixed(2)} USDC settled in group ${groupId}`);
 
   res.json({
     success: true,
     handle,
     txn_group_id: groupId,
+    txids: result.txids,
+    round: result.round,
     total_usdc: parseFloat(total.toFixed(2)),
     batch_payments: payments,
-    note: 'Atomic group ready to settle. Each seller_payto receives its share in one Algorand atomic transaction group.',
+    note: 'All seller payments settled atomically on Algorand in one transaction group.',
   });
 });
 
