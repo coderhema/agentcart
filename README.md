@@ -202,6 +202,14 @@ You must do these steps to enter the x402 Global Challenge.
 
 All four endpoints use the same payTo address. This makes AgentCart a Composite entry.
 
+## Watch It Work
+
+> The demo video and the screenshots will go here once the full flow runs on the testnet.
+
+![AgentCart demo](docs/screenshot.png)
+
+[Watch the demo video](https://your-demo-video-link.example)
+
 ## The Project Structure
 
 ```
