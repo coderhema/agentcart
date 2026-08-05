@@ -56,3 +56,15 @@ export const requestLogs = sqliteTable('request_logs', {
   error_message: text('error_message'),
   created_at: text('created_at').default('datetime(\'now\')'),
 });
+
+export const agentHandles = sqliteTable('agent_handles', {
+  handle: text('handle').primaryKey(),
+  wallet_address: text('wallet_address').notNull().unique(),
+  display_name: text('display_name'),
+  bio: text('bio'),
+  avatar_url: text('avatar_url'),
+  spending_limit_usdc: real('spending_limit_usdc').default(0),
+  is_active: integer('is_active').default(1),
+  created_at: text('created_at').default('datetime(\'now\')'),
+  updated_at: text('updated_at').default('datetime(\'now\')'),
+});

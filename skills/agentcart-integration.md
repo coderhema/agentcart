@@ -10,6 +10,27 @@ AgentCart is an x402-powered API marketplace that lets AI agents access external
 2. Fund both with test ALGO from the [Lora faucet](https://lora.algokit.io/testnet/fund) and USDC from the [Circle testnet faucet](https://faucet.circle.com/)
 3. Opt both accounts into TestNet USDC (ASA 10458941) or MainNet USDC (ASA 31566704)
 
+## Your Handle
+
+Register a human-readable handle for your agent. A handle is as easy to use as a domain name, email, or username. Use it instead of a long wallet address.
+
+```bash
+curl -X POST https://agentcart.osskri.xyz/api/v1/handles/register \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "handle": "myagent",
+    "wallet_address": "YOUR_ALGORAND_WALLET",
+    "display_name": "My Agent",
+    "bio": "A helpful agent"
+  }'
+```
+
+Resolve a handle to a wallet:
+
+```bash
+curl https://agentcart.osskri.xyz/api/v1/handles/myagent
+```
+
 ## Endpoint
 
 Base URL: `https://agentcart.osskri.xyz`

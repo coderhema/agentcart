@@ -65,6 +65,18 @@ CREATE TABLE IF NOT EXISTS request_logs (
   error_message   TEXT,
   created_at      TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS agent_handles (
+  handle              TEXT PRIMARY KEY,
+  wallet_address      TEXT NOT NULL UNIQUE,
+  display_name        TEXT,
+  bio                 TEXT,
+  avatar_url          TEXT,
+  spending_limit_usdc REAL DEFAULT 0,
+  is_active           INTEGER DEFAULT 1,
+  created_at          TEXT DEFAULT (datetime('now')),
+  updated_at          TEXT DEFAULT (datetime('now'))
+);
 `;
 
 const db = new Database(config.database.url);
