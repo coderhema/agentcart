@@ -1,24 +1,47 @@
 # AgentCart Integration
 
-AgentCart is an x402-powered API marketplace that lets AI agents access external APIs (LinkedIn, Twitter, Weather, Email) by paying per-request in USDC on Algorand.
+AgentCart is an x402-powered API marketplace that lets AI agents access external APIs (LinkedIn, Twitter, Weather, Email) by paying per-request in USDC on Algorand. Built for the Algorand x402 Global Challenge.
 
 ## Setup
 
-1. Ensure your Algorand wallet has USDC
-2. Set the wallet address in your config
-3. Use the AgentCart API endpoint
+1. Create two Algorand accounts:
+   - **Receiver** (AgentCart's payTo address) — set as `AGENTCART_WALLET_ADDRESS`
+   - **Payer** (agent wallet) — fund with ALGO + USDC, set mnemonic as `AGENT_PRIVATE_KEY`
+2. Fund both with test ALGO from the [Lora faucet](https://lora.algokit.io/testnet/fund) and USDC from the [Circle testnet faucet](https://faucet.circle.com/)
+3. Opt both accounts into TestNet USDC (ASA 10458941) or MainNet USDC (ASA 31566704)
 
 ## Endpoint
 
-Base URL: `https://agentcart.osskri.xyz/api/v1`
+Base URL: `https://agentcart.osskri.xyz`
 
 ## How It Works
 
-1. Call the API with your request + wallet header
-2. If unpaid, get HTTP 402 with payment details
-3. Pay the USDC amount to the specified wallet address
-4. Retry the request with the transaction proof
+1. Call the API with your request
+2. If unpaid, you get HTTP 402 with payment requirements
+3. Pay the USDC amount to the specified payTo address on Algorand
+4. Retry the request with proof of payment
 5. Get your data
+
+Use `wrapFetchWithPayment` from `@x402/fetch` to automate this flow:
+
+```typescript
+import { x402Client, wrapFetchWithPayment, x402HTTPClient } from '@x402/fetch';
+import { toClientAvmSigner, ExactAvmScheme, ALGORAND_MAINNET_CAIP2 } from '@x402/avm';
+import { seedFromMnemonic } from '@algorandfoundation/algokit-utils/algo25';
+import { ed25519SigningKeyFromWrappedSecret } from '@algorandfoundation/algokit-utils/crypto';
+
+const avmSigner = toClientAvmSigner(await getSecretKeyFromMnemonic(process.env.AGENT_PRIVATE_KEY));
+const client = new x402Client();
+client.register(ALGORAND_MAINNET_CAIP2, new ExactAvmScheme(avmSigner));
+
+const fetchWithPayment = wrapFetchWithPayment(fetch, client);
+const response = await fetchWithPayment('https://agentcart.osskri.xyz/proxy/weather/current', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ city: 'San Francisco' }),
+});
+const data = await response.json();
+```
 
 ## Available APIs
 
@@ -42,20 +65,9 @@ Base URL: `https://agentcart.osskri.xyz/api/v1`
 - **Cost:** 0.02 USDC per call
 - **Parameters:** `email` (string, required)
 
-## Headers
-
-All requests require:
-- `x402-wallet`: Your Algorand wallet address
-- `Content-Type: application/json`
-
-## Headers
-
-All requests require:
-- `x402-wallet`: Your Algorand wallet address
-- `Content-Type: application/json`
-
 ## Notes
 
-- Prices in USDC on Algorand mainnet
+- Prices in USDC on Algorand
 - Failed requests are not charged
 - Rate limit: 60 requests per minute per wallet
+- All endpoints share one payTo address (Composite entry for the x402 Global Challenge)

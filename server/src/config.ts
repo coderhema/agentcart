@@ -5,6 +5,7 @@ const isMainnet = process.env.ALGORAND_NETWORK === 'mainnet';
 
 export const config = {
   port: parseInt(process.env.PORT || '3001'),
+  x402Port: parseInt(process.env.X402_PORT || '4021'),
   nodeEnv: process.env.NODE_ENV || 'development',
   algorand: {
     network: process.env.ALGORAND_NETWORK || 'testnet',
@@ -14,7 +15,7 @@ export const config = {
     walletMnemonic: process.env.AGENTCART_WALLET_MNEMONIC || '',
   },
   x402: {
-    facilitator: process.env.X402_FACILITATOR || 'https://api.go-plausible.xyz',
+    facilitator: process.env.X402_FACILITATOR || 'https://facilitator.goplausible.xyz',
   },
   database: {
     url: process.env.DATABASE_URL || 'file:./data/agentcart.db',
