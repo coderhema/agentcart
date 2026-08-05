@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "AgentCart",
+  "version": "0.1.0",
+  "description": "Add anything you see on the web to your agent's cart.",
+  "permissions": ["activeTab", "storage", "contextMenus", "notifications"],
+  "host_permissions": ["https://agentcart.osskri.xyz/*"],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "AgentCart"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

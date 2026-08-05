@@ -77,6 +77,35 @@ CREATE TABLE IF NOT EXISTS agent_handles (
   created_at          TEXT DEFAULT (datetime('now')),
   updated_at          TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS cart_items (
+  id              TEXT PRIMARY KEY,
+  handle          TEXT NOT NULL REFERENCES agent_handles(handle),
+  title           TEXT NOT NULL,
+  source          TEXT NOT NULL,
+  product_url     TEXT,
+  image_url       TEXT,
+  price_usdc      REAL,
+  seller_payto    TEXT,
+  quantity        INTEGER DEFAULT 1,
+  status          TEXT NOT NULL DEFAULT 'added',
+  added_by        TEXT DEFAULT 'user',
+  created_at      TEXT DEFAULT (datetime('now')),
+  updated_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_cart_handle ON cart_items(handle);
+CREATE INDEX IF NOT EXISTS idx_cart_status ON cart_items(status);
+
+CREATE TABLE IF NOT EXISTS carts (
+  id              TEXT PRIMARY KEY,
+  handle          TEXT NOT NULL REFERENCES agent_handles(handle),
+  status          TEXT NOT NULL DEFAULT 'open',
+  total_usdc      REAL DEFAULT 0,
+  txn_group_id    TEXT,
+  created_at      TEXT DEFAULT (datetime('now')),
+  updated_at      TEXT DEFAULT (datetime('now'))
+);
 `;
 
 const db = new Database(config.database.url);

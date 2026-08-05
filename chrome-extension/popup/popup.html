@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; width: 320px; padding: 16px; margin: 0; color: #212121; }
+    h1 { font-size: 18px; margin: 0 0 12px; letter-spacing: -0.5px; }
+    label { font-size: 12px; color: #75758a; display: block; margin: 10px 0 4px; }
+    input, button { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; margin-bottom: 8px; }
+    input { border: 1px solid #d9d9dd; font-size: 14px; }
+    button { border: none; background: #17171c; color: #fff; font-size: 14px; cursor: pointer; font-weight: 500; }
+    button.secondary { background: #eeece7; color: #212121; }
+    #items { margin-top: 8px; }
+    .item { border-top: 1px solid #f2f2f2; padding: 8px 0; font-size: 13px; }
+    .total { margin-top: 10px; font-weight: 600; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>AgentCart</h1>
+  <label>Your handle</label>
+  <input id="handle" placeholder="@handle" />
+  <button id="save">Save handle</button>
+  <button id="add-current" class="secondary">Add this page to cart</button>
+  <div id="items"></div>
+  <div class="total">Total: <span id="total">—</span></div>
+  <script src="popup.js"></script>
+</body>
+</html>

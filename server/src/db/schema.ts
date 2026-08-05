@@ -68,3 +68,29 @@ export const agentHandles = sqliteTable('agent_handles', {
   created_at: text('created_at').default('datetime(\'now\')'),
   updated_at: text('updated_at').default('datetime(\'now\')'),
 });
+
+export const cartItems = sqliteTable('cart_items', {
+  id: text('id').primaryKey(),
+  handle: text('handle').notNull().references(() => agentHandles.handle),
+  title: text('title').notNull(),
+  source: text('source').notNull(),
+  product_url: text('product_url'),
+  image_url: text('image_url'),
+  price_usdc: real('price_usdc'),
+  seller_payto: text('seller_payto'),
+  quantity: integer('quantity').default(1),
+  status: text('status').notNull().default('added'),
+  added_by: text('added_by').default('user'),
+  created_at: text('created_at').default('datetime(\'now\')'),
+  updated_at: text('updated_at').default('datetime(\'now\')'),
+});
+
+export const carts = sqliteTable('carts', {
+  id: text('id').primaryKey(),
+  handle: text('handle').notNull().references(() => agentHandles.handle),
+  status: text('status').notNull().default('open'),
+  total_usdc: real('total_usdc').default(0),
+  txn_group_id: text('txn_group_id'),
+  created_at: text('created_at').default('datetime(\'now\')'),
+  updated_at: text('updated_at').default('datetime(\'now\')'),
+});
