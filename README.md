@@ -38,6 +38,14 @@ Your handle is your identity. It works like a domain name, an email, or a userna
 
 No long wallet addresses. No private keys pasted around. Just your handle.
 
+## The WhatsApp Bot
+
+The same cart, right in your chat. Send the AgentCart bot on WhatsApp a photo or a link from Shein, Temu, or Jumia and say *"check price"*.
+
+The agent finds the same item across stores, compares prices, and builds a cart with the best deal on each. You see one total. You pay once, in USDC. The bot shows the total in your local currency — so no math, no conversion stress — and every seller gets settled in USDC at once.
+
+No app to install. No card to enter. Just a chat.
+
 ## The Architecture
 
 Any agent connects to AgentCart through the cart API. They all share your handle. Chrome, Claude, DeepSeek, ChatGPT, and Hermes all talk to the same cart.
