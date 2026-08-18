@@ -3,10 +3,15 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { paymentMiddleware, x402ResourceServer } from '@x402/hono';
 import { HTTPFacilitatorClient } from '@x402/core/server';
-import type { ResourceServerExtension } from '@x402/core/types';
 import { ExactAvmScheme } from '@x402/avm/exact/server';
-import { ALGORAND_MAINNET_CAIP2, ALGORAND_TESTNET_CAIP2, USDC_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
-import { declareDiscoveryExtension, bazaarResourceServerExtension } from '@x402-avm/extensions';
+import { USDC_MAINNET_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
+
+// @x402/avm exports a truncated ALGORAND_*_CAIP2 (drops the tail of the genesis
+// hash); the GoPlausible facilitator requires the full genesis-hash CAIP2, so we
+// define the correct values here until the upstream constant is fixed.
+const ALGORAND_TESTNET_CAIP2 = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
+const ALGORAND_MAINNET_CAIP2 = 'algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=';
+import { declareDiscoveryExtension } from '@x402/extensions';
 
 config();
 
@@ -19,13 +24,11 @@ if (!avmAddress) {
 const facilitatorUrl = process.env.X402_FACILITATOR || 'https://facilitator.goplausible.xyz';
 const isMainnet = process.env.ALGORAND_NETWORK === 'mainnet';
 const network = isMainnet ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2;
-const usdcAsset = isMainnet ? USDC_ASA_ID : USDC_TESTNET_ASA_ID;
+const usdcAsset = isMainnet ? USDC_MAINNET_ASA_ID : USDC_TESTNET_ASA_ID;
 
 const facilitatorClient = new HTTPFacilitatorClient({ url: facilitatorUrl });
 const server = new x402ResourceServer(facilitatorClient)
   .register(network, new ExactAvmScheme());
-
-server.registerExtension(bazaarResourceServerExtension as unknown as ResourceServerExtension);
 
 const linkedinDiscovery = declareDiscoveryExtension({
   bodyType: 'json',

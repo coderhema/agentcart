@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { ALGORAND_MAINNET_CAIP2, ALGORAND_TESTNET_CAIP2, USDC_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
+import { ALGORAND_MAINNET_CAIP2, ALGORAND_TESTNET_CAIP2, USDC_MAINNET_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
 
 const isMainnet = process.env.ALGORAND_NETWORK === 'mainnet';
 
@@ -10,7 +10,7 @@ export const config = {
   algorand: {
     network: process.env.ALGORAND_NETWORK || 'testnet',
     caip2: isMainnet ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2,
-    usdcAsaId: isMainnet ? USDC_ASA_ID : USDC_TESTNET_ASA_ID,
+    usdcAsaId: isMainnet ? USDC_MAINNET_ASA_ID : USDC_TESTNET_ASA_ID,
     walletAddress: process.env.AGENTCART_WALLET_ADDRESS || '',
     walletMnemonic: process.env.AGENTCART_WALLET_MNEMONIC || '',
   },

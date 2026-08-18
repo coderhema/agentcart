@@ -1,6 +1,11 @@
 import { config } from 'dotenv';
 import { x402Client, wrapFetchWithPayment, x402HTTPClient } from '@x402/fetch';
-import { toClientAvmSigner, ExactAvmScheme, ALGORAND_MAINNET_CAIP2, ALGORAND_TESTNET_CAIP2 } from '@x402/avm';
+import { toClientAvmSigner, ExactAvmScheme } from '@x402/avm';
+
+// See server/src/x402.ts: @x402/avm's ALGORAND_*_CAIP2 is truncated; the
+// facilitator requires the full genesis-hash CAIP2.
+const ALGORAND_TESTNET_CAIP2 = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
+const ALGORAND_MAINNET_CAIP2 = 'algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=';
 import {
   ed25519SigningKeyFromWrappedSecret,
   type WrappedEd25519Seed,
@@ -21,11 +26,14 @@ if (!avmMnemonic) {
 const endpoint = process.argv[2] || 'weather';
 const param = process.argv[3] || 'San Francisco';
 
+// Point at a local x402 server with AGENTCART_BASE_URL=http://localhost:4021
+const baseUrl = process.env.AGENTCART_BASE_URL || 'https://agentcart.osskri.xyz';
+
 const urlMap: Record<string, string> = {
-  linkedin: 'https://agentcart.osskri.xyz/proxy/linkedin/profile',
-  twitter: 'https://agentcart.osskri.xyz/proxy/twitter/search',
-  weather: 'https://agentcart.osskri.xyz/proxy/weather/current',
-  email: 'https://agentcart.osskri.xyz/proxy/email/verify',
+  linkedin: `${baseUrl}/proxy/linkedin/profile`,
+  twitter: `${baseUrl}/proxy/twitter/search`,
+  weather: `${baseUrl}/proxy/weather/current`,
+  email: `${baseUrl}/proxy/email/verify`,
 };
 
 const bodyMap: Record<string, Record<string, string>> = {
