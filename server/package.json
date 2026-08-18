@@ -10,6 +10,7 @@
     "client": "tsx src/client.ts",
     "testnet:login": "tsx scripts/testnet-login.ts",
     "testnet:setup": "tsx scripts/testnet-setup.ts",
+    "e2e:local": "bash scripts/run-e2e.sh",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx scripts/seed.ts"
   },
