@@ -14,6 +14,8 @@ You attach the image and the link. Your agent takes it from there.
 
 The agent goes to the market for you. It buys the shirt from the store. It buys the shoes from another store. It buys the API from a third place. All of these are in one cart. Then it pays all the sellers at once, in one batch.
 
+It also shops **money-wise**: for every item it compares the price across stores, finds the best deal, and only then adds it to the cart. You always get the best price without doing the hunting.
+
 This is the cart. No per-store checkout. No stress.
 
 ## The Flow
