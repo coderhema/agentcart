@@ -65,6 +65,23 @@ On the left are the ways in: the Chrome plugin, or any AI agent. In the middle i
 
 **Why Algorand:** it can split one checkout into many payments and settle them all together in a single atomic group. All the sellers get paid, or none of them do. That is exactly what a cart needs.
 
+### The Money Model
+
+Give the agent a balance, and it spends from there. No per-checkout checkout forms, no card entry.
+
+```
+top-up once ──► Agent wallet (USDC balance)
+                    │  pays via x402 (per request)
+                    ▼
+                 Store wallet (USDC)
+```
+
+- **One top-up.** The user loads the agent's Algorand wallet with USDC once. That balance is what the agent spends.
+- **Per-request payment.** Each API or store call is an x402 payment out of that balance, settled on-chain in USDC.
+- **Store receives USDC.** If a store later wants cash, that is its own off-ramp — outside the checkout flow.
+- **Local currency is a display estimate.** The UI shows the price in the user's local currency (e.g. "≈ ₦3,400"), but the settlement is USDC. No FX in the middle.
+- **Fiat on/off ramps are a later layer.** Paystack-style local-currency checkout and conversion to cash build on top of this — they are not part of the hackathon core.
+
 ## The Parts
 
 | Part | Function |
