@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../../db/index.js';
 import { transactions } from '../../db/schema.js';
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 
 export const transactionsRouter = Router();
 
@@ -30,7 +30,7 @@ transactionsRouter.get('/stats', async (req, res) => {
 });
 
 transactionsRouter.get('/:id', async (req, res) => {
-  const txn = await db.select().from(transactions).where({ id: req.params.id }).limit(1);
+  const txn = await db.select().from(transactions).where(eq(transactions.id, req.params.id)).limit(1);
   if (!txn[0]) return res.status(404).json({ error: 'Transaction not found' });
   res.json(txn[0]);
 });

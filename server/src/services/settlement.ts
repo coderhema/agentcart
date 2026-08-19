@@ -33,7 +33,7 @@ export class SettlementService {
   }
 
   get payerAddress(): string {
-    return this.payerAccount.addr;
+    return this.payerAccount.addr.toString();
   }
 
   /**
@@ -61,16 +61,14 @@ export class SettlementService {
         v: 1,
       });
 
-      return algosdk.makeAssetTransferTxnWithSuggestedParams(
-        this.payerAccount.addr,
-        payment.seller_payto,
-        undefined,
-        undefined,
+      return algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        sender: this.payerAccount.addr.toString(),
+        receiver: payment.seller_payto,
         amount,
         note,
-        asaId,
-        params,
-      );
+        assetIndex: Number(asaId),
+        suggestedParams: params,
+      });
     });
 
     const grouped = algosdk.assignGroupID(txs);
@@ -78,9 +76,16 @@ export class SettlementService {
     const txids = grouped.map((tx) => tx.txID());
 
     try {
-      const { txId, round } = await this.algod.sendRawTransaction(signed).do();
-      logger.info(`Atomic group settled: ${txId}, round ${round}, ${payments.length} payments`);
-      return { success: true, txn_group_id: txId, txids, round };
+      const { txid } = await this.algod.sendRawTransaction(signed).do();
+      let round: number | undefined;
+      try {
+        const pending = await algosdk.waitForConfirmation(this.algod, txid, 4);
+        round = pending.confirmedRound !== undefined ? Number(pending.confirmedRound) : undefined;
+      } catch (confirmationError) {
+        logger.warn(`Group submitted (${txid}) but confirmation polling failed`, confirmationError);
+      }
+      logger.info(`Atomic group settled: ${txid}, round ${round}, ${payments.length} payments`);
+      return { success: true, txn_group_id: txid, txids, round };
     } catch (error) {
       logger.error('Atomic group settlement failed', error);
       return { success: false, error: (error as Error).message, txids };
