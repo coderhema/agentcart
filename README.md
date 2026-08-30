@@ -14,6 +14,8 @@ You attach the image and the link. Your agent takes it from there.
 
 The agent goes to the market for you. It buys the shirt from the store. It buys the shoes from another store. It buys the API from a third place. All of these are in one cart. Then it pays all the sellers at once, in one batch.
 
+It also shops **money-wise**: for every item it compares the price across stores, finds the best deal, and only then adds it to the cart. You always get the best price without doing the hunting.
+
 This is the cart. No per-store checkout. No stress.
 
 ## The Flow
@@ -38,6 +40,14 @@ Your handle is your identity. It works like a domain name, an email, or a userna
 
 No long wallet addresses. No private keys pasted around. Just your handle.
 
+## The WhatsApp Bot
+
+The same cart, right in your chat. Send the AgentCart bot on WhatsApp a photo or a link from Shein, Temu, or Jumia and say *"check price"*.
+
+The agent finds the same item across stores, compares prices, and builds a cart with the best deal on each. You see one total. You pay once, in USDC. The bot shows the total in your local currency — so no math, no conversion stress — and every seller gets settled in USDC at once.
+
+No app to install. No card to enter. Just a chat.
+
 ## The Architecture
 
 Any agent connects to AgentCart through the cart API. They all share your handle. Chrome, Claude, DeepSeek, ChatGPT, and Hermes all talk to the same cart.
@@ -56,6 +66,23 @@ Any agent connects to AgentCart through the cart API. They all share your handle
 On the left are the ways in: the Chrome plugin, or any AI agent. In the middle is the cart — add items, find duplicates, and check out. On the right is the money — x402 handles each payment, and one Algorand atomic group settles the whole cart with every seller at once.
 
 **Why Algorand:** it can split one checkout into many payments and settle them all together in a single atomic group. All the sellers get paid, or none of them do. That is exactly what a cart needs.
+
+### The Money Model
+
+Give the agent a balance, and it spends from there. No per-checkout checkout forms, no card entry.
+
+```
+top-up once ──► Agent wallet (USDC balance)
+                    │  pays via x402 (per request)
+                    ▼
+                 Store wallet (USDC)
+```
+
+- **One top-up.** The user loads the agent's Algorand wallet with USDC once. That balance is what the agent spends.
+- **Per-request payment.** Each API or store call is an x402 payment out of that balance, settled on-chain in USDC.
+- **Store receives USDC.** If a store later wants cash, that is its own off-ramp — outside the checkout flow.
+- **Local currency is a display estimate.** The UI shows the price in the user's local currency (e.g. "≈ ₦3,400"), but the settlement is USDC. No FX in the middle.
+- **Fiat on/off ramps are a later layer.** Paystack-style local-currency checkout and conversion to cash build on top of this — they are not part of the hackathon core.
 
 ## The Parts
 

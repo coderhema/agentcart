@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { USDC_MAINNET_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
 
 // @x402/avm exports truncated CAIP-2 constants (bug in 2.19-2.24). Use the
 // full canonical strings the GoPlausible facilitator accepts (from /supported).

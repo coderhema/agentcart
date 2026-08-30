@@ -3,7 +3,6 @@ import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
 import { paymentMiddleware, x402ResourceServer } from '@x402/hono';
 import { HTTPFacilitatorClient } from '@x402/core/server';
-import type { ResourceServerExtension } from '@x402/core/types';
 import { ExactAvmScheme } from '@x402/avm/exact/server';
 import { USDC_MAINNET_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
 import { declareDiscoveryExtension, bazaarResourceServerExtension } from '@x402-avm/extensions';
@@ -30,8 +29,6 @@ const usdcAsset = isMainnet ? USDC_MAINNET_ASA_ID : USDC_TESTNET_ASA_ID;
 const facilitatorClient = new HTTPFacilitatorClient({ url: facilitatorUrl });
 const server = new x402ResourceServer(facilitatorClient)
   .register(network, new ExactAvmScheme());
-
-server.registerExtension(bazaarResourceServerExtension as unknown as ResourceServerExtension);
 
 const linkedinDiscovery = declareDiscoveryExtension({
   bodyType: 'json',

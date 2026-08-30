@@ -33,7 +33,8 @@ try {
   browserParams = { url: param };
 }
 
-const baseUrl = process.env.AGENTCART_URL || 'https://agentcart.osskri.xyz';
+// Point at a local x402 server with AGENTCART_BASE_URL or AGENTCART_URL
+const baseUrl = process.env.AGENTCART_BASE_URL || process.env.AGENTCART_URL || 'https://agentcart.osskri.xyz';
 
 const urlMap: Record<string, string> = {
   linkedin: `${baseUrl}/proxy/linkedin/profile`,
