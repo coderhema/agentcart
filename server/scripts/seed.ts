@@ -65,6 +65,27 @@ const products = [
       required: ['email'],
     }),
   },
+  {
+    id: 'browser-action',
+    name: 'Browser Action',
+    description: 'Real browser automation: open a page, snapshot elements, click, fill forms, or extract data from any public website',
+    price_usdc: 0.02,
+    provider: 'browser',
+    endpoint_path: '/proxy/browser/action',
+    method: 'POST',
+    parameters: JSON.stringify({
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          enum: ['open', 'snapshot', 'click', 'fill', 'extract', 'screenshot', 'close'],
+          description: 'Browser action to execute',
+        },
+        params: { type: 'object', description: 'Action-specific parameters' },
+      },
+      required: ['action'],
+    }),
+  },
 ];
 
 const db = new Database(config.database.url);

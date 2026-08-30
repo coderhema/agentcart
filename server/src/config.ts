@@ -1,5 +1,9 @@
 import 'dotenv/config';
-import { ALGORAND_MAINNET_CAIP2, ALGORAND_TESTNET_CAIP2, USDC_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
+
+// @x402/avm exports truncated CAIP-2 constants (bug in 2.19-2.24). Use the
+// full canonical strings the GoPlausible facilitator accepts (from /supported).
+const ALGORAND_MAINNET_CAIP2 = 'algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=';
+const ALGORAND_TESTNET_CAIP2 = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
 
 const isMainnet = process.env.ALGORAND_NETWORK === 'mainnet';
 
@@ -10,7 +14,7 @@ export const config = {
   algorand: {
     network: process.env.ALGORAND_NETWORK || 'testnet',
     caip2: isMainnet ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2,
-    usdcAsaId: isMainnet ? USDC_ASA_ID : USDC_TESTNET_ASA_ID,
+    usdcAsaId: isMainnet ? USDC_MAINNET_ASA_ID : USDC_TESTNET_ASA_ID,
     walletAddress: process.env.AGENTCART_WALLET_ADDRESS || '',
     walletMnemonic: process.env.AGENTCART_WALLET_MNEMONIC || '',
   },

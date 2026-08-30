@@ -9,6 +9,11 @@ export const proxyRequestSchema = z.object({
   units: z.enum(['metric', 'imperial']).optional(),
 });
 
+export const browserActionSchema = z.object({
+  action: z.enum(['open', 'snapshot', 'click', 'fill', 'extract', 'screenshot', 'close']),
+  params: z.record(z.any()).default({}),
+});
+
 export const loginSchema = z.object({
   passphrase: z.string().min(1),
 });

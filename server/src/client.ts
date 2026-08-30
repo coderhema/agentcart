@@ -26,6 +26,7 @@ const urlMap: Record<string, string> = {
   twitter: 'https://agentcart.osskri.xyz/proxy/twitter/search',
   weather: 'https://agentcart.osskri.xyz/proxy/weather/current',
   email: 'https://agentcart.osskri.xyz/proxy/email/verify',
+  browser: 'https://agentcart.osskri.xyz/proxy/browser/action',
 };
 
 const bodyMap: Record<string, Record<string, string>> = {
@@ -33,6 +34,7 @@ const bodyMap: Record<string, Record<string, string>> = {
   twitter: { query: param },
   weather: { city: param },
   email: { email: param },
+  browser: { action: param, params: '{}' },
 };
 
 async function getSecretKeyFromMnemonic(avmMnemonic: string): Promise<string> {

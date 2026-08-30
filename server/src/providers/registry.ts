@@ -1,4 +1,5 @@
 import { ProviderInterface, LinkedinProvider, TwitterProvider, WeatherProvider, EmailProvider } from './types.js';
+import { BrowserProvider } from './browser.js';
 import { config } from '../config.js';
 
 class ProviderRegistry {
@@ -26,3 +27,4 @@ registry.register(new LinkedinProvider(
 registry.register(new TwitterProvider());
 registry.register(new WeatherProvider());
 registry.register(new EmailProvider());
+registry.register(new BrowserProvider());

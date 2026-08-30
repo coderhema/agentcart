@@ -80,6 +80,15 @@ The cart can buy from these services. More are added all the time.
 | Twitter/X Search | It searches for tweets. | 0.03 USDC |
 | Weather Data | It gets the current weather. | 0.01 USDC |
 | Email Verification | It checks if an email address is valid. | 0.02 USDC |
+| Browser Action | Real browser automation: open pages, snapshot elements, click, fill forms, extract data from any public website. | 0.02 USDC |
+
+### Browser provider
+
+The browser action runs a real headless Chromium via [agent-browser](https://github.com/vercel-labs/agent-browser) (Vercel Labs). Actions: `open`, `snapshot`, `click`, `fill`, `extract`, `screenshot`, `close`.
+
+- Requires the `agent-browser` CLI. The server looks for `~/agent-browser.sh` (Termux wrapper) or `agent-browser` on PATH. Override with `AGENT_BROWSER_BIN`.
+- SSRF-protected: private IPs, loopback, link-local, and metadata endpoints are rejected before the browser is pointed at them.
+- All calls are serialized (single Chromium daemon). The `extract` action evaluates JavaScript in the page and returns parsed JSON when possible.
 
 ## How To Run It
 

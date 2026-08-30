@@ -14,7 +14,7 @@
   "dependencies": {
     "@x402/avm": "^2.19.0",
     "@x402/core": "^2.19.0",
-    "@x402-avm/extensions": "^2.19.0",
+    "@x402-avm/extensions": "^2.6.1",
     "@x402/fetch": "^2.19.0",
     "algosdk": "^3.6.0",
     "@algorandfoundation/algokit-utils": "10.0.0-alpha.42",
@@ -30,7 +30,8 @@
     "jsonwebtoken": "^9.0.0",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "express-rate-limit": "^7.2.0"
+    "express-rate-limit": "^7.2.0",
+    "@x402/hono": "^2.19.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

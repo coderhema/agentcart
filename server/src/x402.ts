@@ -5,8 +5,14 @@ import { paymentMiddleware, x402ResourceServer } from '@x402/hono';
 import { HTTPFacilitatorClient } from '@x402/core/server';
 import type { ResourceServerExtension } from '@x402/core/types';
 import { ExactAvmScheme } from '@x402/avm/exact/server';
-import { ALGORAND_MAINNET_CAIP2, ALGORAND_TESTNET_CAIP2, USDC_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
+import { USDC_MAINNET_ASA_ID, USDC_TESTNET_ASA_ID } from '@x402/avm';
 import { declareDiscoveryExtension, bazaarResourceServerExtension } from '@x402-avm/extensions';
+import { BrowserProvider } from './providers/browser.js';
+
+// @x402/avm exports truncated CAIP-2 constants (bug in 2.19-2.24). Use the
+// full canonical strings the GoPlausible facilitator accepts (from /supported).
+const ALGORAND_MAINNET_CAIP2 = 'algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=';
+const ALGORAND_TESTNET_CAIP2 = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
 
 config();
 
@@ -19,7 +25,7 @@ if (!avmAddress) {
 const facilitatorUrl = process.env.X402_FACILITATOR || 'https://facilitator.goplausible.xyz';
 const isMainnet = process.env.ALGORAND_NETWORK === 'mainnet';
 const network = isMainnet ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2;
-const usdcAsset = isMainnet ? USDC_ASA_ID : USDC_TESTNET_ASA_ID;
+const usdcAsset = isMainnet ? USDC_MAINNET_ASA_ID : USDC_TESTNET_ASA_ID;
 
 const facilitatorClient = new HTTPFacilitatorClient({ url: facilitatorUrl });
 const server = new x402ResourceServer(facilitatorClient)
@@ -104,6 +110,32 @@ const emailDiscovery = declareDiscoveryExtension({
   },
 });
 
+const browserDiscovery = declareDiscoveryExtension({
+  bodyType: 'json',
+  input: { action: 'open', params: { url: 'https://example.com' } },
+  inputSchema: {
+    properties: {
+      action: {
+        type: 'string',
+        enum: ['open', 'snapshot', 'click', 'fill', 'extract', 'screenshot', 'close'],
+        description: 'Browser action to execute',
+      },
+      params: {
+        type: 'object',
+        description: 'Action-specific parameters (url, ref, value, script, interactive)',
+      },
+    },
+    required: ['action'],
+  },
+  output: {
+    example: {
+      action: 'open',
+      ok: true,
+      url: 'https://example.com',
+    },
+  },
+});
+
 const app = new Hono();
 
 app.use(
@@ -164,6 +196,20 @@ app.use(
         description: 'Email Verification: validate deliverability, risk score, and domain info for a given email address',
         mimeType: 'application/json',
         extensions: emailDiscovery,
+      },
+      'POST /proxy/browser/action': {
+        accepts: [
+          {
+            scheme: 'exact',
+            price: '$0.02',
+            network,
+            payTo: avmAddress,
+            extra: { asset: usdcAsset, tag: 'x402-global-challenge' },
+          },
+        ],
+        description: 'Browser Action: real browser automation - open pages, snapshot elements, click, fill forms, or extract data from any public website. SSRF-protected (no private/loopback targets).',
+        mimeType: 'application/json',
+        extensions: browserDiscovery,
       },
     },
     server,
@@ -227,6 +273,18 @@ app.post('/proxy/email/verify', async (c) => {
       disposable: false,
     },
   });
+});
+
+const browserProvider = new BrowserProvider();
+
+app.post('/proxy/browser/action', async (c) => {
+  const { action, params = {} } = await c.req.json().catch(() => ({ action: '', params: {} }));
+  try {
+    const data = await browserProvider.handle(action, params);
+    return c.json({ success: true, action, data });
+  } catch (e: any) {
+    return c.json({ success: false, action, error: e?.message || 'Browser action failed' }, 400);
+  }
 });
 
 const port = parseInt(process.env.X402_PORT || '4021', 10);
