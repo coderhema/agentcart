@@ -1,11 +1,15 @@
 import { config } from 'dotenv';
 import { x402Client, wrapFetchWithPayment, x402HTTPClient } from '@x402/fetch';
-import { toClientAvmSigner, ExactAvmScheme, ALGORAND_MAINNET_CAIP2, ALGORAND_TESTNET_CAIP2 } from '@x402/avm';
+import { toClientAvmSigner, ExactAvmScheme } from '@x402/avm';
 import {
   ed25519SigningKeyFromWrappedSecret,
   type WrappedEd25519Seed,
 } from '@algorandfoundation/algokit-utils/crypto';
 import { seedFromMnemonic } from '@algorandfoundation/algokit-utils/algo25';
+
+// @x402/avm exports truncated CAIP-2 constants (bug in 2.19-2.24).
+const ALGORAND_MAINNET_CAIP2 = 'algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=';
+const ALGORAND_TESTNET_CAIP2 = 'algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
 
 config();
 
@@ -21,20 +25,30 @@ if (!avmMnemonic) {
 const endpoint = process.argv[2] || 'weather';
 const param = process.argv[3] || 'San Francisco';
 
+// Browser action params: accept JSON string ({"url":"..."}) or bare value (open https://x.com -> {url})
+let browserParams: Record<string, string>;
+try {
+  browserParams = param.startsWith('{') ? JSON.parse(param) : { url: param };
+} catch {
+  browserParams = { url: param };
+}
+
+const baseUrl = process.env.AGENTCART_URL || 'https://agentcart.osskri.xyz';
+
 const urlMap: Record<string, string> = {
-  linkedin: 'https://agentcart.osskri.xyz/proxy/linkedin/profile',
-  twitter: 'https://agentcart.osskri.xyz/proxy/twitter/search',
-  weather: 'https://agentcart.osskri.xyz/proxy/weather/current',
-  email: 'https://agentcart.osskri.xyz/proxy/email/verify',
-  browser: 'https://agentcart.osskri.xyz/proxy/browser/action',
+  linkedin: `${baseUrl}/proxy/linkedin/profile`,
+  twitter: `${baseUrl}/proxy/twitter/search`,
+  weather: `${baseUrl}/proxy/weather/current`,
+  email: `${baseUrl}/proxy/email/verify`,
+  browser: `${baseUrl}/proxy/browser/action`,
 };
 
-const bodyMap: Record<string, Record<string, string>> = {
+const bodyMap: Record<string, Record<string, unknown>> = {
   linkedin: { url: param },
   twitter: { query: param },
   weather: { city: param },
   email: { email: param },
-  browser: { action: param, params: '{}' },
+  browser: { action: param.split(' ')[0] ?? 'open', params: browserParams },
 };
 
 async function getSecretKeyFromMnemonic(avmMnemonic: string): Promise<string> {

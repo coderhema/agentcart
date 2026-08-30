@@ -47,7 +47,9 @@ Use `wrapFetchWithPayment` from `@x402/fetch` to automate this flow:
 
 ```typescript
 import { x402Client, wrapFetchWithPayment, x402HTTPClient } from '@x402/fetch';
-import { toClientAvmSigner, ExactAvmScheme, ALGORAND_MAINNET_CAIP2 } from '@x402/avm';
+import { toClientAvmSigner, ExactAvmScheme } from '@x402/avm';
+// @x402/avm exports truncated CAIP-2 constants (bug in 2.19-2.24) - use full strings
+const ALGORAND_MAINNET_CAIP2 = 'algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=';
 import { seedFromMnemonic } from '@algorandfoundation/algokit-utils/algo25';
 import { ed25519SigningKeyFromWrappedSecret } from '@algorandfoundation/algokit-utils/crypto';
 
