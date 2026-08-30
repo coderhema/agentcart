@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.."
 PORT=4021
 BASE=http://localhost:$PORT
 
-npx tsx src/x402.ts > /tmp/x402-local.log 2>&1 &
+npx tsx src/x402.ts > "${TMPDIR:-/tmp}/x402-local.log" 2>&1 &
 SRV=$!
 cleanup() { kill -9 "$SRV" 2>/dev/null; }
 trap cleanup EXIT
