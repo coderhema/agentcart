@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
 import { agentHandles, transactions } from '../db/schema.js';
-import { sql } from 'drizzle-orm';
+import { sql, eq, and } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
 
 export const handlesRouter = Router();
@@ -10,7 +10,7 @@ const HANDLE_REGEX = /^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$/;
 
 handlesRouter.get('/', async (req, res) => {
   const handles = await db.select().from(agentHandles)
-    .where({ is_active: 1 })
+    .where(eq(agentHandles.is_active, 1))
     .orderBy(agentHandles.created_at);
   res.json({ handles });
 });
@@ -43,7 +43,7 @@ handlesRouter.post('/register', async (req, res) => {
 
 handlesRouter.get('/:handle', async (req, res) => {
   const row = await db.select().from(agentHandles)
-    .where({ handle: req.params.handle, is_active: 1 })
+    .where(and(eq(agentHandles.handle, req.params.handle), eq(agentHandles.is_active, 1)))
     .limit(1);
 
   if (!row[0]) {
@@ -53,7 +53,7 @@ handlesRouter.get('/:handle', async (req, res) => {
   const spent = await db.select({
     total_spent: sql`COALESCE(SUM(${transactions.amount_usdc}), 0)`,
     total_calls: sql`COUNT(*)`,
-  }).from(transactions).where({ agent_wallet: row[0].wallet_address });
+  }).from(transactions).where(eq(transactions.agent_wallet, row[0].wallet_address));
 
   res.json({
     ...row[0],
@@ -72,7 +72,7 @@ handlesRouter.put('/:handle', async (req, res) => {
       spending_limit_usdc,
       updated_at: new Date().toISOString(),
     })
-    .where({ handle: req.params.handle })
+    .where(eq(agentHandles.handle, req.params.handle))
     .returning();
   if (!updated[0]) return res.status(404).json({ error: 'Handle not found' });
   res.json(updated[0]);

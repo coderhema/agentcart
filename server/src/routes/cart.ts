@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
 import { cartItems, carts, agentHandles } from '../db/schema.js';
-import { sql, eq } from 'drizzle-orm';
+import { sql, eq, and } from 'drizzle-orm';
 import { randomBytes } from 'crypto';
 import { config } from '../config.js';
 import { SettlementService } from '../services/settlement.js';
@@ -25,7 +25,7 @@ cartRouter.post('/add', async (req, res) => {
     return res.status(400).json({ error: 'handle, title, and source are required' });
   }
 
-  const owner = await db.select().from(agentHandles).where({ handle }).limit(1);
+  const owner = await db.select().from(agentHandles).where(eq(agentHandles.handle, handle)).limit(1);
   if (!owner[0]) {
     return res.status(404).json({ error: `Handle '${handle}' not found. Register it first.` });
   }
@@ -62,12 +62,12 @@ cartRouter.post('/add', async (req, res) => {
     added_by: added_by || 'user',
   }).returning();
 
-  const cart = await db.select().from(carts).where({ handle, status: 'open' }).limit(1);
+  const cart = await db.select().from(carts).where(and(eq(carts.handle, handle), eq(carts.status, 'open'))).limit(1);
   if (!cart[0]) {
     await db.insert(carts).values({ id: `cart_${newId()}`, handle, status: 'open', total_usdc: price_usdc || 0 });
   } else {
     await db.update(carts).set({ total_usdc: (cart[0].total_usdc || 0) + (price_usdc || 0), updated_at: new Date().toISOString() })
-      .where({ id: cart[0].id });
+      .where(eq(carts.id, cart[0].id));
   }
 
   res.status(201).json({ duplicate: false, item: created[0], item_id: itemId });
@@ -75,12 +75,12 @@ cartRouter.post('/add', async (req, res) => {
 
 cartRouter.post('/confirm-duplicate', async (req, res) => {
   const { item_id } = req.body;
-  const item = await db.select().from(cartItems).where({ id: item_id }).limit(1);
+  const item = await db.select().from(cartItems).where(eq(cartItems.id, item_id)).limit(1);
   if (!item[0]) return res.status(404).json({ error: 'Item not found' });
 
   const updated = await db.update(cartItems)
     .set({ quantity: (item[0].quantity || 1) + 1, updated_at: new Date().toISOString() })
-    .where({ id: item_id }).returning();
+    .where(eq(cartItems.id, item_id)).returning();
 
   res.json({ message: 'Quantity increased', item: updated[0] });
 });
@@ -90,7 +90,7 @@ cartRouter.get('/:handle', async (req, res) => {
   const items = await db.select().from(cartItems)
     .where(sql`${cartItems.handle} = ${handle} AND ${cartItems.status} = 'added'`)
     .orderBy(sql`created_at DESC`);
-  const cart = await db.select().from(carts).where({ handle, status: 'open' }).limit(1);
+  const cart = await db.select().from(carts).where(and(eq(carts.handle, handle), eq(carts.status, 'open'))).limit(1);
 
   const total = items.reduce((sum, i) => sum + (i.price_usdc || 0) * (i.quantity || 1), 0);
 
@@ -112,7 +112,7 @@ cartRouter.post('/:handle/checkout', async (req, res) => {
     return res.status(400).json({ error: 'Cart is empty' });
   }
 
-  const owner = await db.select().from(agentHandles).where({ handle }).limit(1);
+  const owner = await db.select().from(agentHandles).where(eq(agentHandles.handle, handle)).limit(1);
   const missingSeller = items.find(i => !i.seller_payto);
   if (missingSeller) {
     return res.status(400).json({ error: `Item '${missingSeller.title}' has no seller payTo address` });
@@ -151,14 +151,14 @@ cartRouter.post('/:handle/checkout', async (req, res) => {
   await db.update(cartItems).set({ status: 'purchased', updated_at: new Date().toISOString() })
     .where(eq(cartItems.handle, handle));
 
-  const cart = await db.select().from(carts).where({ handle, status: 'open' }).limit(1);
+  const cart = await db.select().from(carts).where(and(eq(carts.handle, handle), eq(carts.status, 'open'))).limit(1);
   if (cart[0]) {
     await db.update(carts).set({
       status: 'paid',
       total_usdc: parseFloat(total.toFixed(2)),
       txn_group_id: groupId,
       updated_at: new Date().toISOString(),
-    }).where({ id: cart[0].id });
+    }).where(eq(carts.id, cart[0].id));
   }
 
   logger.info(`Checkout for ${handle}: ${payments.length} payments, ${total.toFixed(2)} USDC settled in group ${groupId}`);

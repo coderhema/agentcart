@@ -43,8 +43,30 @@ async function main() {
       console.log(JSON.stringify(await res.json(), null, 2));
       break;
 
+    case 'browser_action':
+      const [bAction, ...bRest] = process.argv.slice(3);
+      const bBody = bRest.length ? JSON.parse(bRest.join(' ')) : {};
+
+      const bRes = await fetch(`${API_URL}/proxy/browser/action`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x402-wallet': WALLET,
+        },
+        body: JSON.stringify({ action: bAction, params: bBody }),
+      });
+
+      if (bRes.status === 402) {
+        const bPaymentReq = JSON.parse(bRes.headers.get('x402-request') || '{}');
+        console.log('Payment required:', JSON.stringify(bPaymentReq, null, 2));
+        process.exit(1);
+      }
+
+      console.log(JSON.stringify(await bRes.json(), null, 2));
+      break;
+
     default:
-      console.log('Usage: agentcart-mcp <list_products|check_balance|call_api> [args...]');
+      console.log('Usage: agentcart-mcp <list_products|check_balance|call_api|browser_action> [args...]');
   }
 }
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { db } from '../../db/index.js';
 import { apiProducts } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
 
 export const productsAdminRouter = Router();
 
@@ -17,12 +18,12 @@ productsAdminRouter.post('/', async (req, res) => {
 productsAdminRouter.put('/:id', async (req, res) => {
   const product = await db.update(apiProducts)
     .set({ ...req.body, updated_at: new Date().toISOString() })
-    .where({ id: req.params.id }).returning();
+    .where(eq(apiProducts.id, req.params.id)).returning();
   res.json(product[0]);
 });
 
 productsAdminRouter.delete('/:id', async (req, res) => {
   await db.update(apiProducts).set({ is_active: 0, updated_at: new Date().toISOString() })
-    .where({ id: req.params.id });
+    .where(eq(apiProducts.id, req.params.id));
   res.json({ success: true });
 });
