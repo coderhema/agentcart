@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
-import { config } from '../config.js';
-import { logger } from '../utils/logger.js';
+import { config } from '../src/config.ts';
+import { logger } from '../src/utils/logger.ts';
 
 const products = [
   {

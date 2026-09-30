@@ -17,13 +17,13 @@ export const config = {
     caip2: isMainnet ? ALGORAND_MAINNET_CAIP2 : ALGORAND_TESTNET_CAIP2,
     usdcAsaId: isMainnet ? USDC_MAINNET_ASA_ID : USDC_TESTNET_ASA_ID,
     walletAddress: process.env.AGENTCART_WALLET_ADDRESS || '',
-    walletMnemonic: process.env.AGENTCART_WALLET_MNEMONIC || '',
+    walletMnemonic: process.env.AGENTCART_WALLET_MNEMONIC || process.env.AGENT_PRIVATE_KEY || '',
   },
   x402: {
     facilitator: process.env.X402_FACILITATOR || 'https://facilitator.goplausible.xyz',
   },
   database: {
-    url: process.env.DATABASE_URL || 'file:./data/agentcart.db',
+    url: process.env.DATABASE_URL || './data/agentcart.db',
   },
   dashboard: {
     passphrase: process.env.DASHBOARD_PASSPHRASE || 'agentcart-admin',
